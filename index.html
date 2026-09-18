@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>话题IP平台 · 双环境开发方案</title>
+<style>
+  :root{
+    --bg:#FDFBF9; --card:#FFFFFF; --line:rgba(20,20,20,.10); --line2:rgba(20,20,20,.16);
+    --text:#1C1C1A; --text2:#5F5E5A; --text3:#8A8880;
+    --local:#185FA5; --local-bg:#E6F1FB;
+    --cvm:#0F6E56; --cvm-bg:#E1F5EE;
+    --adata:#A32D2D; --adata-bg:#FCEBEB;
+    --radius:10px; --radius-lg:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;font-size:14px;line-height:1.65;padding:0 0 80px}
+  .wrap{max-width:760px;margin:0 auto;padding:64px 28px}
+
+  .kicker{font-size:12px;color:var(--text3);letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px}
+  h1{font-size:28px;font-weight:500;margin:0 0 12px;letter-spacing:-.01em}
+  .sub{font-size:14px;color:var(--text2);max-width:600px;margin:0}
+  .meta{display:flex;gap:18px;margin-top:22px;font-size:12px;color:var(--text3);flex-wrap:wrap}
+  .meta b{color:var(--text2);font-weight:500}
+
+  .docs{display:grid;gap:14px;margin-top:44px}
+  .doc{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:22px 24px;transition:border-color .15s}
+  .doc:hover{border-color:var(--line2)}
+  .doc .tag{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:500;margin-bottom:12px}
+  .doc .tag.rule{background:var(--local-bg);color:var(--local)}
+  .doc .tag.exec{background:var(--cvm-bg);color:var(--cvm)}
+  .doc .tag .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+  .doc h2{margin:0 0 6px;font-size:17px;font-weight:500}
+  .doc p{margin:0;font-size:13px;color:var(--text2)}
+  .doc .go{margin-top:14px;font-size:12px;color:var(--text3)}
+
+  .note{margin-top:40px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px 22px}
+  .note h3{margin:0 0 10px;font-size:14px;font-weight:500}
+  .note ul{margin:0;padding-left:18px;font-size:13px;color:var(--text2)}
+  .note li{margin:5px 0}
+
+  footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">Topic IP Platform</div>
+  <h1>话题IP平台 · 双环境开发方案</h1>
+  <p class="sub">CVM 与 adata 双环境技术栈统一的协作方案。规则层回答「长期怎么配合」，执行层回答「这次具体做什么」。</p>
+  <div class="meta">
+    <span><b>版本</b> v1 · 2026-09-18</span>
+    <span><b>架构</b> 一份代码 + 三个环境</span>
+    <span><b>数据流</b> adata 单向下行</span>
+  </div>
+
+  <div class="docs">
+    <a class="doc" href="./%F0%9F%8C%B1%E5%8F%8C%E7%8E%AF%E5%A2%83%E5%BC%80%E5%8F%91%E6%96%B9%E6%A1%88_%E9%95%BF%E6%9C%9F%E8%A7%84%E5%88%99%E5%B1%82_2026-09-18.html">
+      <span class="tag rule"><span class="dot"></span>长期规则层</span>
+      <h2>协作 SOP</h2>
+      <p>三环境职责边界、数据与代码流向铁律、Git 分支策略、环境变量差异、部署红线、数据安全规则。不随单次任务变化，长期反复适用。</p>
+      <div class="go">点击打开 →</div>
+    </a>
+
+    <a class="doc" href="./%F0%9F%8C%B1%E5%8F%8C%E7%8E%AF%E5%A2%83%E5%BC%80%E5%8F%91%E6%96%B9%E6%A1%88_%E5%85%B7%E4%BD%93%E6%89%A7%E8%A1%8C%E4%BA%8B%E5%AE%9C_2026-09-18.html">
+      <span class="tag exec"><span class="dot"></span>本次执行层</span>
+      <h2>执行清单</h2>
+      <p>本次任务的 5 个阶段：止血修复、Git 分支搭建、CVM 技术栈统一、本地环境搭建、常态化协作。含每步验收标准。</p>
+      <div class="go">点击打开 →</div>
+    </a>
+  </div>
+
+  <div class="note">
+    <h3>方案要点速记</h3>
+    <ul>
+      <li>代码只有一份，用 Git 分支 <code>adata-baseline</code> 承载，物理上不存在两个版本</li>
+      <li>三个环境（本地 macOS / CVM 走查 / adata 生产）差异只体现在环境变量</li>
+      <li>数据单向流动：adata 是唯一真相源，快照只流向 CVM 和本地，绝不回流</li>
+      <li>代码单向流动：本地开发 → CVM 走查验收 → adata 部署，不可跳过走查</li>
+    </ul>
+  </div>
+
+  <footer>本页为文档导航入口 · 两份正文见上方链接</footer>
+
+</div>
+</body>
+</html>
