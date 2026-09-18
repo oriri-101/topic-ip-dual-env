@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>执行清单 · 本次具体事宜</title>
+<style>
+  :root{
+    --bg:#FDFBF9; --card:#FFFFFF; --line:rgba(20,20,20,.10); --line2:rgba(20,20,20,.16);
+    --text:#1C1C1A; --text2:#5F5E5A; --text3:#8A8880;
+    --local:#185FA5; --local-bg:#E6F1FB;
+    --cvm:#0F6E56; --cvm-bg:#E1F5EE;
+    --adata:#A32D2D; --adata-bg:#FCEBEB;
+    --git:#534AB7; --git-bg:#EEEDFE;
+    --radius:10px; --radius-lg:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;font-size:14px;line-height:1.65;padding:0 0 80px}
+  .wrap{max-width:960px;margin:0 auto;padding:48px 32px}
+  header{margin-bottom:36px}
+  .kicker{font-size:12px;color:var(--text3);letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px}
+  h1{font-size:26px;font-weight:500;margin:0 0 10px;letter-spacing:-.01em}
+  .sub{font-size:14px;color:var(--text2);max-width:660px}
+
+  .progress{display:flex;gap:6px;margin-top:24px}
+  .progress .seg{flex:1;height:4px;border-radius:2px;background:var(--line2)}
+  .progress .seg.active{background:var(--text)}
+  .progress-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--text3)}
+
+  .stage{margin:44px 0;border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;background:var(--card)}
+  .stage-head{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--line)}
+  .stage-num{width:32px;height:32px;border-radius:50%;background:var(--text);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;flex-shrink:0}
+  .stage-title{flex:1}
+  .stage-title h3{margin:0;font-size:16px;font-weight:500}
+  .stage-title .desc{font-size:12px;color:var(--text3);margin-top:2px}
+  .stage-status{font-size:12px;padding:4px 10px;border-radius:999px;font-weight:500;white-space:nowrap}
+  .stage-status.ready{background:var(--cvm-bg);color:var(--cvm)}
+  .stage-status.gated{background:var(--adata-bg);color:var(--adata)}
+
+  .stage-body{padding:18px 22px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-weight:500;color:var(--text2);font-size:12px;padding:8px 10px;border-bottom:1px solid var(--line2);white-space:nowrap}
+  td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td.step-id{color:var(--text3);font-variant-numeric:tabular-nums;white-space:nowrap}
+  td b{font-weight:500}
+
+  .env-tag{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:500;white-space:nowrap}
+  .env-tag.local{background:var(--local-bg);color:var(--local)}
+  .env-tag.git{background:var(--git-bg);color:var(--git)}
+  .env-tag.cvm{background:var(--cvm-bg);color:var(--cvm)}
+  .env-tag.adata{background:var(--adata-bg);color:var(--adata)}
+
+  .verify{background:var(--bg);border-top:1px solid var(--line);padding:14px 22px;font-size:13px}
+  .verify b{color:var(--text2);font-size:12px;text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:6px}
+
+  .gate{display:flex;gap:10px;align-items:flex-start;background:var(--adata-bg);border:1px solid rgba(163,45,45,.25);border-radius:var(--radius);padding:12px 14px;margin:0 22px 18px;font-size:13px;color:var(--adata)}
+  .gate b{font-weight:500}
+
+  .note{display:flex;gap:10px;align-items:flex-start;background:var(--local-bg);border:1px solid rgba(24,95,165,.25);border-radius:var(--radius);padding:12px 14px;margin:0 22px 18px;font-size:13px;color:var(--local)}
+  .note b{font-weight:500}
+  .note code{background:var(--card);border:1px solid rgba(24,95,165,.2);border-radius:4px;padding:1px 5px;font-size:12px;font-family:ui-monospace,Menlo,monospace}
+
+  .checklist{list-style:none;margin:0;padding:0}
+  .checklist li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;font-size:13px}
+  .checklist li::before{content:'';width:16px;height:16px;border-radius:4px;border:1.5px solid var(--line2);flex-shrink:0;margin-top:1px}
+
+  footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Topic IP Platform · Execution Checklist</div>
+  <h1>执行清单 · 本次具体事宜</h1>
+  <div class="sub">回答"这次具体谁、在哪、干什么" —— 对应《协作SOP》规则层的一次性落地。按阶段顺序执行，每阶段做完再进下一阶段。</div>
+  <div class="progress">
+    <div class="seg active"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div>
+  </div>
+  <div class="progress-labels">
+    <span>阶段0 止血</span><span>阶段1 Git</span><span>阶段2 CVM</span><span>阶段3 本地</span><span>阶段4 常态化</span>
+  </div>
+</header>
+
+<div class="stage">
+  <div class="stage-head">
+    <div class="stage-num">0</div>
+    <div class="stage-title"><h3>止血</h3><div class="desc">修复字段覆盖丢失 Bug，从根上堵住数据丢失</div></div>
+    <span class="stage-status ready">零风险 · 可立即开始</span>
+  </div>
+  <div class="stage-body">
+    <table>
+      <tr><th style="width:56px">序</th><th style="width:100px">在哪</th><th>具体做什么</th></tr>
+      <tr><td class="step-id">0.1</td><td><span class="env-tag local">本地</span></td><td>改 <code>server.js</code> 的 <code>PUT /ip/:ipKey</code>：保存前先读数据库现有 <code>data</code>，与新数据做<b>浅合并</b>，不再整体覆盖</td></tr>
+      <tr><td class="step-id">0.2</td><td><span class="env-tag local">本地</span></td><td>改 <code>topic-ip-platform-demo.html</code> 的 <code>_remoteLoadIpsFromApi</code>：从手工列 25 个字段改为 <code>{...ip}</code> 全量展开</td></tr>
+      <tr><td class="step-id">0.3</td><td><span class="env-tag local">本地</span></td><td>起服务，用现有数据自测：保存活动后字段不丢、新字段能透传</td></tr>
+    </table>
+  </div>
+  <div class="verify"><b>验收标准</b>保存任意活动后 tag / detailMetrics 等字段不再消失；新增测试字段后前端能读到</div>
+</div>
+
+<div class="stage">
+  <div class="stage-head">
+    <div class="stage-num">1</div>
+    <div class="stage-title"><h3>Git 分支搭建</h3><div class="desc">建立唯一开发主线，零丢失保留 CVM 历史</div></div>
+    <span class="stage-status ready">只操作 git · 风险极低</span>
+  </div>
+  <div class="stage-body">
+    <table>
+      <tr><th style="width:56px">序</th><th style="width:100px">在哪</th><th>具体做什么</th></tr>
+      <tr><td class="step-id">1.1</td><td><span class="env-tag git">Git</span></td><td>从 <code>main</code> 创建 <code>adata-baseline</code> 分支</td></tr>
+      <tr><td class="step-id">1.2</td><td><span class="env-tag git">Git</span></td><td>用基线包内容替换该分支文件，合入阶段0的两处改动，提交一个 commit</td></tr>
+      <tr><td class="step-id">1.3</td><td><span class="env-tag git">Git</span></td><td>把 <code>main</code> 上的 <code>e3890c8</code>（幽灵ID修复）cherry-pick 到 <code>adata-baseline</code></td></tr>
+      <tr><td class="step-id">1.4</td><td><span class="env-tag git">Git</span></td><td>push 到远程仓库</td></tr>
+    </table>
+  </div>
+  <div class="verify"><b>验收标准</b><code>git log adata-baseline</code> 能看到完整改动链条；<code>main</code> 分支不受任何影响</div>
+</div>
+
+<div class="stage">
+  <div class="stage-head">
+    <div class="stage-num">2</div>
+    <div class="stage-title"><h3>CVM 技术栈统一</h3><div class="desc">装 MySQL，与 adata 对齐，消除长期 diff</div></div>
+    <span class="stage-status gated">涉及服务器 · 需确认命令</span>
+  </div>
+  <div class="gate"><b>红线：</b>以下每一步都会先列出完整命令，等你明确说「部署」才执行</div>
+  <div class="stage-body">
+    <table>
+      <tr><th style="width:56px">序</th><th style="width:100px">在哪</th><th>具体做什么</th></tr>
+      <tr><td class="step-id">2.1</td><td><span class="env-tag cvm">CVM</span></td><td>安装 MySQL 8</td></tr>
+      <tr><td class="step-id">2.2</td><td><span class="env-tag cvm">CVM</span></td><td>用活动 id 做差集比对：CVM 58条 vs adata 62条，找出各自独有的数据</td></tr>
+      <tr><td class="step-id">2.3</td><td><span class="env-tag cvm">CVM</span></td><td>如果 CVM 有独有数据，先单独备份出来</td></tr>
+      <tr><td class="step-id">2.4</td><td><span class="env-tag adata">adata</span></td><td>导出数据快照（在 adata 会话内执行，本地连不上）</td></tr>
+      <tr><td class="step-id">2.5</td><td><span class="env-tag cvm">CVM</span></td><td>把快照灌入新装的 MySQL</td></tr>
+      <tr><td class="step-id">2.6</td><td><span class="env-tag cvm">CVM</span></td><td>现有 SQLite 数据库原地重命名归档，不删除</td></tr>
+      <tr><td class="step-id">2.7</td><td><span class="env-tag cvm">CVM</span></td><td>部署 <code>adata-baseline</code> 分支代码，<code>ecosystem.config.js</code> 加 5 个 MySQL 环境变量</td></tr>
+      <tr><td class="step-id">2.8</td><td><span class="env-tag cvm">CVM</span></td><td>健康检查 + 核心功能走查（登录 / 活动列表 / 编辑保存 / 图片上传）</td></tr>
+    </table>
+  </div>
+  <div class="verify"><b>验收标准</b>CVM 访问正常，日志显示 <code>db type=mysql</code>，数据与快照一致，字段保存不丢失</div>
+</div>
+
+<div class="stage">
+  <div class="stage-head">
+    <div class="stage-num">3</div>
+    <div class="stage-title"><h3>本地开发环境搭建</h3><div class="desc">跑通完整链路，为常态化开发做准备</div></div>
+    <span class="stage-status ready">本地操作 · 先列命令确认</span>
+  </div>
+  <div class="stage-body">
+    <table>
+      <tr><th style="width:56px">序</th><th style="width:100px">在哪</th><th>具体做什么</th></tr>
+      <tr><td class="step-id">3.1</td><td><span class="env-tag local">本地</span></td><td>checkout <code>adata-baseline</code> 到本地 <code>adata-dev/</code> 目录</td></tr>
+      <tr><td class="step-id">3.2</td><td><span class="env-tag local">本地</span></td><td>配置本地环境变量（<code>DB_PATH</code> 等），验证 <code>node server.js</code> 能启动</td></tr>
+      <tr><td class="step-id">3.3</td><td><span class="env-tag local">本地</span></td><td>灌入同一份快照（可选，用于日常联调）</td></tr>
+      <tr><td class="step-id">3.4</td><td><span class="env-tag local">本地</span></td><td>小规模试水：加一个测试字段，走完整链路（本地→CVM走查→部署adata）</td></tr>
+    </table>
+  </div>
+  <div class="verify"><b>验收标准</b>全链路跑通一次，无阻塞</div>
+</div>
+
+<div class="stage">
+  <div class="stage-head">
+    <div class="stage-num">4</div>
+    <div class="stage-title"><h3>常态化协作</h3><div class="desc">流程固化，进入日常循环</div></div>
+    <span class="stage-status gated">部署动作仍需确认</span>
+  </div>
+  <div class="stage-body">
+    <ul class="checklist">
+      <li>本地改代码（Claude / GPT，任意强模型）</li>
+      <li>commit → push → MR 到 <code>adata-baseline</code></li>
+      <li>合并后部署 CVM 走查（需你确认「部署」）</li>
+      <li>走查通过 → 部署 adata（需你确认「部署」，必带 <code>bound_db_names</code>）</li>
+      <li>浏览器验证 adata 生产</li>
+    </ul>
+  </div>
+  <div class="note">
+    <span><b>部署到 adata 时的连接机制（补充说明）：</b>不经过快照，是运行时直连。代码带 <code>bound_db_names</code> 上传 → adata 平台自动注入数据库连接地址到容器环境变量 → 适配层用内置默认账号密码补全 → 容器启动直连 adata 真实生产 MySQL → 运行时自动把代码里的 SQLite 写法翻译成 MySQL 写法 → 建表逻辑幂等（表存在则跳过），<b>部署不会清空或重建任何已有数据</b>。</span>
+  </div>
+</div>
+
+<footer>
+  本清单是本次任务的一次性落地记录，执行状态会随进展更新。规则本身的长期定义见《协作SOP》。<br>
+  全程未执行任何代码修改、未部署 —— 等待你逐阶段确认。
+</footer>
+
+</div>
+</body>
+</html>

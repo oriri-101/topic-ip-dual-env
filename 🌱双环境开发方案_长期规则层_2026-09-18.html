@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>协作SOP · 长期规则层</title>
+<style>
+  :root{
+    --bg:#FDFBF9; --card:#FFFFFF; --line:rgba(20,20,20,.10); --line2:rgba(20,20,20,.16);
+    --text:#1C1C1A; --text2:#5F5E5A; --text3:#8A8880;
+    --local:#185FA5; --local-bg:#E6F1FB;
+    --cvm:#0F6E56; --cvm-bg:#E1F5EE;
+    --adata:#A32D2D; --adata-bg:#FCEBEB;
+    --warn:#854F0B; --warn-bg:#FAEEDA;
+    --radius:10px; --radius-lg:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;font-size:14px;line-height:1.65;padding:0 0 80px}
+  .wrap{max-width:920px;margin:0 auto;padding:48px 32px}
+  header{margin-bottom:40px}
+  .kicker{font-size:12px;color:var(--text3);letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px}
+  h1{font-size:26px;font-weight:500;margin:0 0 10px;letter-spacing:-.01em}
+  .sub{font-size:14px;color:var(--text2);max-width:640px}
+  .meta{display:flex;gap:20px;margin-top:20px;font-size:12px;color:var(--text3)}
+  .meta b{color:var(--text2);font-weight:500}
+
+  h2{font-size:17px;font-weight:500;margin:52px 0 4px;padding-top:20px;border-top:1px solid var(--line)}
+  h2 .num{color:var(--text3);font-weight:400;margin-right:8px}
+  .h2sub{font-size:13px;color:var(--text2);margin:0 0 22px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:14px}
+  .card + .card{margin-top:12px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-weight:500;color:var(--text2);font-size:12px;padding:10px 12px;border-bottom:1px solid var(--line2);white-space:nowrap}
+  td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+
+  .env{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap}
+  .env.local{background:var(--local-bg);color:var(--local)}
+  .env.cvm{background:var(--cvm-bg);color:var(--cvm)}
+  .env.adata{background:var(--adata-bg);color:var(--adata)}
+  .env .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+  .rule-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--text);color:#fff;font-size:11px;font-weight:500;flex-shrink:0}
+  .rule{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .rule:last-child{border-bottom:none}
+  .rule-body b{display:block;font-size:14px;font-weight:500;margin-bottom:4px}
+  .rule-body p{margin:0;font-size:13px;color:var(--text2)}
+  .rule-body code{background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12px;font-family:ui-monospace,Menlo,monospace;color:var(--text)}
+
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0;font-size:13px}
+  .flow .node{padding:8px 14px;border-radius:8px;border:1px solid var(--line2);background:var(--card);font-weight:500}
+  .flow .arrow{color:var(--text3);font-size:14px}
+  .flow .forbidden{padding:8px 14px;border-radius:8px;border:1px dashed var(--adata);color:var(--adata);background:var(--adata-bg);font-size:12px}
+
+  .badge-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .badge{font-size:12px;padding:3px 9px;border-radius:6px;background:var(--bg);border:1px solid var(--line2);color:var(--text2)}
+
+  .callout{display:flex;gap:12px;background:var(--warn-bg);border:1px solid rgba(133,79,11,.25);border-radius:var(--radius);padding:14px 16px;margin:16px 0;font-size:13px;color:var(--warn)}
+  .callout .mark{font-weight:500;flex-shrink:0}
+
+  .trigger-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .trigger-item{border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+  .trigger-item .when{font-size:12px;color:var(--text3);margin-bottom:6px;font-weight:500}
+  .trigger-item .what{font-size:13px;color:var(--text)}
+
+  .note{background:var(--local-bg);border:1px solid rgba(24,95,165,.25);border-radius:var(--radius);padding:12px 14px;margin:16px 0;font-size:13px;color:var(--local)}
+  .note b{font-weight:500}
+  .subflow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0;font-size:12px}
+  .subflow .n{padding:6px 11px;border-radius:7px;border:1px solid var(--line2);background:var(--card);font-weight:500}
+  .subflow .a{color:var(--text3);font-size:12px}
+
+  footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Topic IP Platform · Collaboration SOP</div>
+  <h1>协作 SOP · 长期规则层</h1>
+  <div class="sub">回答"什么时间、在哪个环境、做什么类型的事" —— 这是长期维护 CVM 与 adata 双环境时反复适用的规则，不随单次任务变化。具体这次要做的事见另一份《执行清单》。</div>
+  <div class="meta">
+    <span><b>版本</b> v1 · 2026-09-18</span>
+    <span><b>适用范围</b> 话题IP营销驾驶舱</span>
+    <span><b>状态</b> 待确认后生效</span>
+  </div>
+</header>
+
+<h2><span class="num">01</span>三个环境的职责边界</h2>
+<p class="h2sub">同一份代码在三处运行，只用环境变量区分行为；职责不重叠、不交叉</p>
+
+<table>
+<tr><th style="width:110px">环境</th><th style="width:140px">角色定位</th><th>什么时候用</th><th>能做什么</th><th>不能做什么</th></tr>
+<tr>
+  <td><span class="env local"><span class="dot"></span>本地 macOS</span></td>
+  <td>开发</td>
+  <td>日常写代码、改逻辑、调 UI</td>
+  <td>用任意强模型开发；随意破坏重来</td>
+  <td>直接连 adata 真实库；跳过走查直接部署</td>
+</tr>
+<tr>
+  <td><span class="env cvm"><span class="dot"></span>CVM</span></td>
+  <td>走查验收</td>
+  <td>本地开发完、准备上生产前</td>
+  <td>用与生产同构的 MySQL 验证 SQL/迁移问题</td>
+  <td>当作第二生产环境长期使用；自己产生正式业务数据</td>
+</tr>
+<tr>
+  <td><span class="env adata"><span class="dot"></span>adata</span></td>
+  <td>生产</td>
+  <td>走查通过后</td>
+  <td>承载真实用户与业务数据</td>
+  <td>直接改代码调试；用作开发沙盒</td>
+</tr>
+</table>
+
+<h2><span class="num">02</span>触发条件 —— 什么情况下做什么</h2>
+<p class="h2sub">"什么时间"不是固定周期，是按事件触发</p>
+
+<div class="trigger-grid">
+  <div class="trigger-item">
+    <div class="when">当：日常改 UI / 业务逻辑</div>
+    <div class="what">在本地用 <b>SQLite</b>（不设 <code>USER_MYSQL_HOST</code>），秒起秒验证</div>
+  </div>
+  <div class="trigger-item">
+    <div class="when">当：新写 SQL / 加表 / 加索引</div>
+    <div class="what">切到本地 <b>Docker MySQL</b> 验证，SQLite 测不出方言差异</div>
+  </div>
+  <div class="trigger-item">
+    <div class="when">当：功能已在本地验证通过</div>
+    <div class="what">commit → push → MR 到 <code>adata-baseline</code>，合并后部署 <b>CVM</b> 走查</div>
+  </div>
+  <div class="trigger-item">
+    <div class="when">当：CVM 走查确认无误</div>
+    <div class="what">打包部署到 <b>adata</b>，必须你明确说「部署」才执行</div>
+  </div>
+  <div class="trigger-item">
+    <div class="when">当：需要真实数据参考</div>
+    <div class="what">从 adata 导出快照，灌入 CVM / 本地，不直连生产库</div>
+  </div>
+  <div class="trigger-item">
+    <div class="when">当：不确定某段代码能不能动</div>
+    <div class="what">先查是否命中"禁止修改清单"（db-adapter / 认证 / 路径常量等）</div>
+  </div>
+</div>
+
+<h2><span class="num">03</span>数据流向铁律</h2>
+<p class="h2sub">这一节讲的是 <b>CVM / 本地</b> 如何获取参考数据；adata 自己接收部署时走的是另一套直连机制，见下方补充说明</p>
+<div class="flow">
+  <div class="node">adata（真相源）</div>
+  <span class="arrow">→ 导出 →</span>
+  <div class="node">快照文件</div>
+  <span class="arrow">→ 灌入 →</span>
+  <div class="node">CVM / 本地</div>
+  <div class="forbidden">禁止反向 · 禁止 CVM↔本地互相同步</div>
+</div>
+<div class="card">
+  <div class="rule">
+    <span class="rule-num">1</span>
+    <div class="rule-body"><b>单向</b><p>数据只能从 adata 往外导（快照），任何环境都不能把数据推回 adata</p></div>
+  </div>
+  <div class="rule">
+    <span class="rule-num">2</span>
+    <div class="rule-body"><b>隔离</b><p>CVM 和本地各自拉自己的快照，两者之间不同步，避免出现"哪份才是权威"的混乱</p></div>
+  </div>
+  <div class="rule">
+    <span class="rule-num">3</span>
+    <div class="rule-body"><b>可追溯</b><p>快照文件按日期命名（如 <code>snapshot-20260918.json</code>），历史快照保留不覆盖</p></div>
+  </div>
+</div>
+
+<div class="note">
+  <b>补充：新代码部署到 adata 后如何连接生产库（不经过快照，是直连）</b><br>
+  代码上传时带 <code>bound_db_names</code> 参数 → adata 平台自动把连接地址注入容器环境变量 → 适配层用代码内置的默认账号密码补全连接信息 → 容器启动直连 adata 真实生产 MySQL（本体，非复印件）→ 运行时把代码里的 SQLite 写法自动翻译成 MySQL 写法（表名自动加 <code>agent_</code> 前缀）→ 建表逻辑幂等（表已存在则跳过），<b>部署新代码不会清空或重建任何已有数据</b>。
+  <div class="subflow">
+    <span class="n">bound_db_names</span><span class="a">→</span>
+    <span class="n">平台注入连接地址</span><span class="a">→</span>
+    <span class="n">默认账号密码补全</span><span class="a">→</span>
+    <span class="n">直连生产MySQL</span><span class="a">→</span>
+    <span class="n">语法自动翻译</span><span class="a">→</span>
+    <span class="n">幂等建表不清空</span>
+  </div>
+</div>
+
+<h2><span class="num">04</span>代码流向铁律</h2>
+<div class="flow">
+  <div class="node">本地改代码</div>
+  <span class="arrow">→</span>
+  <div class="node">push · MR</div>
+  <span class="arrow">→</span>
+  <div class="node">adata-baseline</div>
+  <span class="arrow">→</span>
+  <div class="node">CVM 走查</div>
+  <span class="arrow">→</span>
+  <div class="node">adata 生产</div>
+</div>
+<div class="callout"><span class="mark">禁止：</span>本地代码直接跳过 CVM 走查部署到 adata —— SQL/迁移层问题只有在同构环境里才测得出</div>
+
+<h2><span class="num">05</span>Git 分支职责</h2>
+<table>
+<tr><th style="width:160px">分支</th><th>用途</th><th>谁能提交</th></tr>
+<tr><td><code>main</code></td><td>CVM 线历史归档，<b>冻结，不再承载新开发</b></td><td>不再提交新功能</td></tr>
+<tr><td><code>adata-baseline</code></td><td>唯一开发主线，本方案所有工作在此进行</td><td>开发者本人 + AI 协助</td></tr>
+<tr><td><code>feature/*</code></td><td>单个功能分支，从 <code>adata-baseline</code> 切出</td><td>按需创建，完成后合并回主线</td></tr>
+</table>
+<div class="badge-list">
+  <span class="badge">不直推 main</span>
+  <span class="badge">开分支</span>
+  <span class="badge">commit 中文描述</span>
+  <span class="badge">push</span>
+  <span class="badge">提 MR</span>
+  <span class="badge">审核后合并</span>
+</div>
+
+<h2><span class="num">06</span>环境变量差异表</h2>
+<p class="h2sub">代码零分叉，三处唯一的差异来源</p>
+<table>
+<tr><th>变量</th><th><span class="env local"><span class="dot"></span>本地</span></th><th><span class="env cvm"><span class="dot"></span>CVM</span></th><th><span class="env adata"><span class="dot"></span>adata</span></th></tr>
+<tr><td><code>USER_MYSQL_HOST</code></td><td>不设（SQLite）或 <code>127.0.0.1</code></td><td><code>127.0.0.1</code></td><td>平台自动注入</td></tr>
+<tr><td><code>PORT</code></td><td><code>3000</code></td><td><code>3003</code></td><td><code>80</code>（平台固定）</td></tr>
+<tr><td>表名前缀</td><td>无 / <code>agent_</code></td><td><code>agent_</code></td><td><code>agent_</code></td></tr>
+</table>
+
+<h2><span class="num">07</span>部署红线</h2>
+<div class="card">
+  <div class="rule">
+    <span class="rule-num">1</span>
+    <div class="rule-body"><b>先列命令</b><p>任何触达 CVM / adata 服务器的操作，必须先完整列出将执行的命令</p></div>
+  </div>
+  <div class="rule">
+    <span class="rule-num">2</span>
+    <div class="rule-body"><b>明确指令才执行</b><p>等你说出「部署」两个字才真正执行，不自行推断</p></div>
+  </div>
+  <div class="rule">
+    <span class="rule-num">3</span>
+    <div class="rule-body"><b>部署后核对</b><p>服务状态 online、健康检查 200、关键功能可用，三项缺一不可</p></div>
+  </div>
+  <div class="rule">
+    <span class="rule-num">4</span>
+    <div class="rule-body"><b>参数不漏</b><p>adata 部署必须带齐 <code>server_name</code> / <code>port</code> / <code>bound_db_names</code>，漏传最后一项会导致数据库绑定丢失</p></div>
+  </div>
+</div>
+
+<h2><span class="num">08</span>数据安全规则</h2>
+<div class="card">
+  <div class="rule">
+    <span class="rule-num">1</span>
+    <div class="rule-body"><b>旧快照不删</b><p>每次导出的快照文件保留历史版本，方便回溯对比</p></div>
+  </div>
+  <div class="rule">
+    <span class="rule-num">2</span>
+    <div class="rule-body"><b>原库先备份</b><p>CVM 现有 SQLite 数据库原地重命名归档，不直接删除或覆盖</p></div>
+  </div>
+  <div class="rule">
+    <span class="rule-num">3</span>
+    <div class="rule-body"><b>灌库前核对</b><p>任何"灌快照"操作前，先确认目标库当前是否有独有数据需要单独保留</p></div>
+  </div>
+</div>
+
+<footer>
+  本文档是长期规则层，不随单次任务变化。如需调整规则本身（如新增环境、改变分支策略），需重新过一轮确认。<br>
+  对应的一次性执行内容见《执行清单 · 本次具体事宜》。
+</footer>
+
+</div>
+</body>
+</html>
