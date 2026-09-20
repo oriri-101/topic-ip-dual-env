@@ -81,7 +81,7 @@
   <h1>协作 SOP · 长期规则层</h1>
   <div class="sub">回答"什么时间、在哪个环境、做什么类型的事" —— 这是长期维护 CVM 与 adata 双环境时反复适用的规则，不随单次任务变化。具体这次要做的事见另一份《执行清单》。</div>
   <div class="meta">
-    <span><b>版本</b> v1 · 2026-09-18</span>
+    <span><b>版本</b> v1.1 · 2026-09-20</span>
     <span><b>适用范围</b> 话题IP营销驾驶舱</span>
     <span><b>状态</b> 待确认后生效</span>
   </div>
@@ -125,11 +125,11 @@
   </div>
   <div class="trigger-item">
     <div class="when">当：新写 SQL / 加表 / 加索引</div>
-    <div class="what">切到本地 <b>Docker MySQL</b> 验证，SQLite 测不出方言差异</div>
+    <div class="what">在 <b>CVM 临时空库</b> 验证（流程见第 09 节），SQLite 测不出方言差异</div>
   </div>
   <div class="trigger-item">
     <div class="when">当：功能已在本地验证通过</div>
-    <div class="what">commit → push → MR 到 <code>adata-baseline</code>，合并后部署 <b>CVM</b> 走查</div>
+    <div class="what">commit → push → MR 到 <code>adata-dev</code> 仓库的 <code>main</code>，合并后部署 <b>CVM</b> 走查</div>
   </div>
   <div class="trigger-item">
     <div class="when">当：CVM 走查确认无误</div>
@@ -189,7 +189,7 @@
   <span class="arrow">→</span>
   <div class="node">push · MR</div>
   <span class="arrow">→</span>
-  <div class="node">adata-baseline</div>
+  <div class="node">adata-dev · main</div>
   <span class="arrow">→</span>
   <div class="node">CVM 走查</div>
   <span class="arrow">→</span>
@@ -198,12 +198,17 @@
 <div class="callout"><span class="mark">禁止：</span>本地代码直接跳过 CVM 走查部署到 adata —— SQL/迁移层问题只有在同构环境里才测得出</div>
 
 <h2><span class="num">05</span>Git 分支职责</h2>
+<p class="h2sub">两个独立仓库各有一个 <code>main</code>，含义完全不同 —— 「main」是分支名，「adata 基线代码」是代码内容，二者不是二选一</p>
 <table>
-<tr><th style="width:160px">分支</th><th>用途</th><th>谁能提交</th></tr>
-<tr><td><code>main</code></td><td>CVM 线历史归档，<b>冻结，不再承载新开发</b></td><td>不再提交新功能</td></tr>
-<tr><td><code>adata-baseline</code></td><td>唯一开发主线，本方案所有工作在此进行</td><td>开发者本人 + AI 协助</td></tr>
-<tr><td><code>feature/*</code></td><td>单个功能分支，从 <code>adata-baseline</code> 切出</td><td>按需创建，完成后合并回主线</td></tr>
+<tr><th style="width:200px">仓库 · 分支</th><th>用途</th><th>谁能提交</th></tr>
+<tr><td><code>adata-dev</code> · <code>main</code></td><td><b>唯一开发主线</b>，装的就是 adata 基线代码，本方案所有工作在此进行</td><td>开发者本人 + AI 协助</td></tr>
+<tr><td><code>feature/*</code></td><td>单个功能分支，从 <code>adata-dev/main</code> 切出</td><td>按需创建，完成后 MR 合并回主线</td></tr>
+<tr><td><code>终版文件</code> · <code>main</code></td><td>CVM 旧线历史归档，<b>冻结</b>，仅供回溯查证</td><td>不再提交</td></tr>
 </table>
+<div class="note">
+  <b>术语说明</b><br>
+  早期方案提到的 <code>adata-baseline</code> 分支<b>从未建立、不存在</b>（改为独立仓库方案后废弃）。后续一律称「<code>adata-dev</code> 仓库的 main」。
+</div>
 <div class="badge-list">
   <span class="badge">不直推 main</span>
   <span class="badge">开分支</span>
@@ -256,6 +261,81 @@
     <span class="rule-num">3</span>
     <div class="rule-body"><b>灌库前核对</b><p>任何"灌快照"操作前，先确认目标库当前是否有独有数据需要单独保留</p></div>
   </div>
+</div>
+
+<h2><span class="num">09</span>MySQL 验收流程</h2>
+<p class="h2sub">部署到 adata 之前必须完成 —— SQLite 测不出 SQL 方言问题，而 adata 是生产环境，SQL 一挂就是全站 500</p>
+
+<h3 style="font-size:14px;font-weight:500;margin:24px 0 10px">触发条件 —— 什么样的改动必须验</h3>
+<table>
+<tr><th style="width:230px">改动类型</th><th style="width:90px">需要验？</th><th>说明</th></tr>
+<tr><td>纯前端 HTML / JS / 样式</td><td>否</td><td>不涉及数据库，SQLite 或本地直接看效果即可</td></tr>
+<tr><td>server.js 业务逻辑（不动 SQL）</td><td>否</td><td>代码路径与数据库类型无关，SQLite 足够</td></tr>
+<tr><td><b>server.js 里的 SQL 语句</b></td><td><span class="env adata"><span class="dot"></span>必须</span></td><td>方言差异只有真实 MySQL 才暴露</td></tr>
+<tr><td><b>建表 / 加列 / 加索引</b><br><code>initDatabase()</code></td><td><span class="env adata"><span class="dot"></span>必须</span></td><td>且必须用<b>全新空库</b>验 —— 表已存在时 <code>IF NOT EXISTS</code> 会跳过，测不出问题</td></tr>
+<tr><td><b>db-adapter.js（翻译层）</b></td><td><span class="env adata"><span class="dot"></span>必须</span></td><td>SQLite + MySQL <b>双验</b>，改动影响两个方向</td></tr>
+<tr><td>数据迁移脚本</td><td><span class="env adata"><span class="dot"></span>必须</span></td><td>涉及真实数据写入，先在临时库跑通</td></tr>
+</table>
+
+<div class="callout">
+  <span class="mark">为什么 SQLite 不够：</span>
+  2026-09-18 实例 —— <code>updated_by TEXT NOT NULL DEFAULT 'admin'</code> 在 SQLite 完全合法、跑得好好的，但 MySQL 有条铁律"BLOB/TEXT/JSON 列不能有默认值"，导致整条 <code>CREATE TABLE</code> 失败。而适配层把该报错当作"表已存在"静默忽略，实际后果是<b>全新 MySQL 库里一张业务表都建不出来</b>。
+  这类问题在 SQLite 上<b>根本不可能暴露</b>，不是概率问题。
+</div>
+
+<h3 style="font-size:14px;font-weight:500;margin:28px 0 10px">验收流程 —— 6 步</h3>
+<p class="h2sub" style="margin-bottom:14px">核心设计：<b>在 CVM 上建临时库验证，绝不碰生产库</b></p>
+<div class="card">
+  <div class="rule">
+    <span class="rule-num">1</span>
+    <div class="rule-body"><b>建临时库</b><p>CVM 上建 <code>verify_YYYYMMDD</code>，与正式库 <code>topic_ip_cvm</code> 完全隔离</p></div>
+  </div>
+  <div class="rule">
+    <span class="rule-num">2</span>
+    <div class="rule-body"><b>跑初始化</b><p>新代码传到 <code>/tmp/verify</code>（<b>不覆盖正式代码</b>），用环境变量指向临时库跑一次 <code>initDatabase()</code></p></div>
+  </div>
+  <div class="rule">
+    <span class="rule-num">3</span>
+    <div class="rule-body"><b>核结构</b><p>核对表数量（应为 13 张）+ <code>SHOW CREATE TABLE</code> 抽查关键列定义是否符合预期</p></div>
+  </div>
+  <div class="rule">
+    <span class="rule-num">4</span>
+    <div class="rule-body"><b>验迁移</b><p>若本次有新加列，单独验证 <code>ALTER</code> 路径 —— 确认 <code>PRAGMA table_info</code> 被正确翻译成查 <code>INFORMATION_SCHEMA</code></p></div>
+  </div>
+  <div class="rule">
+    <span class="rule-num">5</span>
+    <div class="rule-body"><b>冒烟</b><p>灌入数据 → 起服务 → 核心 API 跑一遍（活动列表、登录、活动类型）</p></div>
+  </div>
+  <div class="rule">
+    <span class="rule-num">6</span>
+    <div class="rule-body"><b>清理</b><p>验完 <code>DROP</code> 临时库、删除临时目录，不留残余</p></div>
+  </div>
+</div>
+
+<h3 style="font-size:14px;font-weight:500;margin:28px 0 10px">通过标准 —— 可量化，不靠感觉</h3>
+<div class="card">
+  <table>
+  <tr><td style="width:50%">13 张表全部建出</td><td>缺一张即不通过</td></tr>
+  <tr><td>日志 <code>Database initialized successfully</code></td><td>且<b>无 FATAL</b>（注意甄别历史残留日志）</td></tr>
+  <tr><td><code>/api/v1/health</code> 返回 200</td><td>进程 <code>online</code> 且重启次数不增长</td></tr>
+  <tr><td>业务数据可读</td><td>活动 / 类型 / 账号数量与验前一致</td></tr>
+  </table>
+</div>
+
+<h3 style="font-size:14px;font-weight:500;margin:28px 0 10px">部署到 adata 之后，还要再验一次</h3>
+<p class="h2sub" style="margin-bottom:14px">部署前的验收是"预防"，部署后的是"确认"，两个都不能省</p>
+<table>
+<tr><th style="width:200px">检查项</th><th>期望</th></tr>
+<tr><td><code>/api/v1/health</code></td><td>200</td></tr>
+<tr><td>数据量核对</td><td>与部署前一致（活动 / L2 数据 / 账号）</td></tr>
+<tr><td>核心页面</td><td>能正常打开、无报错横幅</td></tr>
+<tr><td><code>bound_db_names</code></td><td><b>必带</b> —— 漏传会导致数据库绑定丢失，线上数据"消失"</td></tr>
+</table>
+
+<div class="note">
+  <b>两个已知局限（诚实说明，不粉饰）</b><br>
+  ① <b>版本差异</b>：CVM 的 MySQL 是 8.0.46，adata 的版本尚未确认。版本差异会直接影响验收可信度 —— 典型如 <code>CHECK</code> 约束在 MySQL 8.0.16 以下会被静默忽略。建议进 adata 会话跑一次 <code>SELECT VERSION();</code> 确认，差得远则结论需打折扣。<br>
+  ② <b>数据覆盖不全</b>：CVM 用的是自身旧快照，adata 有更多活动记录。adata 独有那部分数据的数据特征（如某字段恰好为 null）在 CVM 这边验不到。这是"拿不到 adata 快照"留下的债，目前无解，属局部风险而非全站风险。
 </div>
 
 <footer>
