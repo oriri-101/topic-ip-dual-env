@@ -334,7 +334,7 @@
 
 <div class="note">
   <b>两个已知局限（诚实说明，不粉饰）</b><br>
-  ① <b>版本差异</b>：CVM 的 MySQL 是 8.0.46，adata 的版本尚未确认。版本差异会直接影响验收可信度 —— 典型如 <code>CHECK</code> 约束在 MySQL 8.0.16 以下会被静默忽略。建议进 adata 会话跑一次 <code>SELECT VERSION();</code> 确认，差得远则结论需打折扣。<br>
+  ① <b>版本差异（已确认，风险可控）</b>：CVM 是 MySQL <b>8.0.46</b>，adata 是 <b>8.0.30-txsql</b>（腾讯云 TencentDB）。两者同属 8.0 大版本，DDL 语法层面一致，<b>CVM 上的验收结论对 adata 基本可信</b>。需注意：txsql 是腾讯云自研分支，首次部署 adata 时仍应重点观察启动日志中的建表/迁移输出。<br>
   ② <b>数据覆盖不全</b>：CVM 用的是自身旧快照，adata 有更多活动记录。adata 独有那部分数据的数据特征（如某字段恰好为 null）在 CVM 这边验不到。这是"拿不到 adata 快照"留下的债，目前无解，属局部风险而非全站风险。
 </div>
 
