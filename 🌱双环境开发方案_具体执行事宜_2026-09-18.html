@@ -180,7 +180,8 @@
   <div class="note">
     <span><b>流程变更（2026-09-21）：</b>原「打包 zip 上传 adata → <code>webapp update</code>」改为<b>「推工蜂 → adata 从工蜂拉取」</b>。单一真相源变成 git 仓库，版本即 tag，不再有"部署包与仓库代码不一致"的风险；<b>zip 打包约定随之作废</b>。<br>
     <b>DB 绑定：</b>改为 git 拉取后 <code>bound_db_names</code> 通常转为 adata 平台的<b>一次性配置</b>，但<b>首次部署或换库必须确认已绑定</b>；若平台仍要求每次指定，部署仍须带齐 <code>server_name</code> / <code>port</code> / <code>bound_db_names</code>。<b>漏绑会导致数据库绑定丢失</b>。<br>
-    <b>连接机制（不变）：</b>adata 上仍是运行时直连真实生产 MySQL —— 平台注入连接地址 → 适配层补全凭据 → SQL 自动翻译（表名加 <code>agent_</code> 前缀）→ 建表幂等（表存在则跳过），<b>部署不会清空或重建任何已有数据</b>。</span>
+    <b>连接机制（不变）：</b>adata 上仍是运行时直连真实生产 MySQL —— 平台注入连接地址 → 适配层补全凭据 → SQL 自动翻译（表名加 <code>agent_</code> 前缀）→ 建表幂等（表存在则跳过），<b>部署不会清空或重建任何已有数据</b>。<br>
+    <b>已确认（2026-09-21）：adata 支持按 tag 拉取</b> —— 拉取标识定为 <b>tag</b>，不再需要"只能拉分支"的备选方案。命名规则、打标时机、附注标签与显式推送、AI/人工分工、回滚方式详见仓库内 <code>RELEASE.md</code>。</span>
   </div>
 </div>
 

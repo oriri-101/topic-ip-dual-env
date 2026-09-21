@@ -203,7 +203,9 @@
   <b>2026-09-21 起生效的流程变更</b><br>
   原流程是「打包 zip 上传 adata → <code>webapp update</code>」，现改为「<b>推工蜂 → adata 从工蜂拉取</b>」。
   好处：①<b>单一真相源</b>（git 仓库），不再有"部署包与仓库代码不一致"的风险 ②<b>版本即 git tag</b>，可回溯、可 diff、可回滚 ③省掉打包环节。
-  <b>zip 打包约定随之作废</b>：<code>adata发布包/</code> 只保留版本记录与检验清单，不再作为交付物。
+  <b>zip 打包约定随之作废</b>：<code>adata发布包/</code> 只保留版本记录与检验清单，不再作为交付物。<br>
+  <b>已确认（2026-09-21）：adata 支持按 tag 拉取</b> —— 拉取标识 = <b>tag</b>（如 <code>v1.2</code>），CVM 与 adata 拉同一个 tag。
+  命名（<code>v主.次</code>）、打标时机、附注标签与显式推送、AI/人工分工、回滚方式见仓库内 <code>RELEASE.md</code>。
 </div>
 
 <h2><span class="num">05</span>Git 分支职责</h2>
