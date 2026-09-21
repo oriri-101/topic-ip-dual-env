@@ -24,6 +24,7 @@
   .progress{display:flex;gap:6px;margin-top:24px}
   .progress .seg{flex:1;height:4px;border-radius:2px;background:var(--line2)}
   .progress .seg.active{background:var(--text)}
+  .progress .seg.done{background:var(--cvm)}
   .progress-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--text3)}
 
   .stage{margin:44px 0;border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;background:var(--card)}
@@ -35,6 +36,7 @@
   .stage-status{font-size:12px;padding:4px 10px;border-radius:999px;font-weight:500;white-space:nowrap}
   .stage-status.ready{background:var(--cvm-bg);color:var(--cvm)}
   .stage-status.gated{background:var(--adata-bg);color:var(--adata)}
+  .stage-status.done{background:var(--cvm);color:#fff}
 
   .stage-body{padding:18px 22px}
   table{width:100%;border-collapse:collapse;font-size:13px}
@@ -75,7 +77,7 @@
   <h1>执行清单 · 本次具体事宜</h1>
   <div class="sub">回答"这次具体谁、在哪、干什么" —— 对应《协作SOP》规则层的一次性落地。按阶段顺序执行，每阶段做完再进下一阶段。</div>
   <div class="progress">
-    <div class="seg active"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div>
+    <div class="seg done"></div><div class="seg done"></div><div class="seg done"></div><div class="seg done"></div><div class="seg active"></div>
   </div>
   <div class="progress-labels">
     <span>阶段0 止血</span><span>阶段1 Git</span><span>阶段2 CVM</span><span>阶段3 本地</span><span>阶段4 常态化</span>
@@ -86,7 +88,7 @@
   <div class="stage-head">
     <div class="stage-num">0</div>
     <div class="stage-title"><h3>止血</h3><div class="desc">修复字段覆盖丢失 Bug，从根上堵住数据丢失</div></div>
-    <span class="stage-status ready">零风险 · 可立即开始</span>
+    <span class="stage-status done">已完成 2026-09-18</span>
   </div>
   <div class="stage-body">
     <table>
@@ -102,26 +104,26 @@
 <div class="stage">
   <div class="stage-head">
     <div class="stage-num">1</div>
-    <div class="stage-title"><h3>Git 分支搭建</h3><div class="desc">建立唯一开发主线，零丢失保留 CVM 历史</div></div>
-    <span class="stage-status ready">只操作 git · 风险极低</span>
+    <div class="stage-title"><h3>Git 仓库搭建</h3><div class="desc">建立唯一开发主线（独立仓库方案），零丢失保留 CVM 历史</div></div>
+    <span class="stage-status done">已完成 2026-09-18</span>
   </div>
   <div class="stage-body">
     <table>
       <tr><th style="width:56px">序</th><th style="width:100px">在哪</th><th>具体做什么</th></tr>
-      <tr><td class="step-id">1.1</td><td><span class="env-tag git">Git</span></td><td>从 <code>main</code> 创建 <code>adata-baseline</code> 分支</td></tr>
-      <tr><td class="step-id">1.2</td><td><span class="env-tag git">Git</span></td><td>用基线包内容替换该分支文件，合入阶段0的两处改动，提交一个 commit</td></tr>
-      <tr><td class="step-id">1.3</td><td><span class="env-tag git">Git</span></td><td>把 <code>main</code> 上的 <code>e3890c8</code>（幽灵ID修复）cherry-pick 到 <code>adata-baseline</code></td></tr>
-      <tr><td class="step-id">1.4</td><td><span class="env-tag git">Git</span></td><td>push 到远程仓库</td></tr>
+      <tr><td class="step-id">1.1</td><td><span class="env-tag git">Git</span></td><td>采用<b>独立仓库方案</b>：新建工蜂仓库 <code>topic-ip-adata</code>，本地目录 <code>adata-dev/</code>。<b>不</b>在旧仓库里建分支 —— 因为 <code>终版文件/</code> 内含 <code>deploy-to-cvm.sh</code>，切分支有误部署风险</td></tr>
+      <tr><td class="step-id">1.2</td><td><span class="env-tag git">Git</span></td><td>基线包内容作为首次提交 <code>23a829a</code> 导入，并合入阶段0两处改动</td></tr>
+      <tr><td class="step-id">1.3</td><td><span class="env-tag git">Git</span></td><td>幽灵ID修复（原 <code>e3890c8</code>）因<b>跨仓库无法 cherry-pick</b>，改为手动移植三处联动改动 + 本地验证</td></tr>
+      <tr><td class="step-id">1.4</td><td><span class="env-tag git">Git</span></td><td>push 到远程；旧仓库 <code>终版文件/</code> 冻结归档，115 个提交完整保留未动</td></tr>
     </table>
   </div>
-  <div class="verify"><b>验收标准</b><code>git log adata-baseline</code> 能看到完整改动链条；<code>main</code> 分支不受任何影响</div>
+  <div class="verify"><b>验收标准</b><code>topic-ip-adata</code> 可用且为唯一开发主线；<code>终版文件/</code> 仍在 main、HEAD 未变</div>
 </div>
 
 <div class="stage">
   <div class="stage-head">
     <div class="stage-num">2</div>
     <div class="stage-title"><h3>CVM 技术栈统一</h3><div class="desc">装 MySQL，与 adata 对齐，消除长期 diff</div></div>
-    <span class="stage-status gated">涉及服务器 · 需确认命令</span>
+    <span class="stage-status done">已完成 2026-09-18</span>
   </div>
   <div class="gate"><b>红线：</b>以下每一步都会先列出完整命令，等你明确说「部署」才执行</div>
   <div class="stage-body">
@@ -130,10 +132,10 @@
       <tr><td class="step-id">2.1</td><td><span class="env-tag cvm">CVM</span></td><td>安装 MySQL 8</td></tr>
       <tr><td class="step-id">2.2</td><td><span class="env-tag cvm">CVM</span></td><td>用活动 id 做差集比对：CVM 58条 vs adata 62条，找出各自独有的数据</td></tr>
       <tr><td class="step-id">2.3</td><td><span class="env-tag cvm">CVM</span></td><td>如果 CVM 有独有数据，先单独备份出来</td></tr>
-      <tr><td class="step-id">2.4</td><td><span class="env-tag adata">adata</span></td><td>导出数据快照（在 adata 会话内执行，本地连不上）</td></tr>
-      <tr><td class="step-id">2.5</td><td><span class="env-tag cvm">CVM</span></td><td>把快照灌入新装的 MySQL</td></tr>
-      <tr><td class="step-id">2.6</td><td><span class="env-tag cvm">CVM</span></td><td>现有 SQLite 数据库原地重命名归档，不删除</td></tr>
-      <tr><td class="step-id">2.7</td><td><span class="env-tag cvm">CVM</span></td><td>部署 <code>adata-baseline</code> 分支代码，<code>ecosystem.config.js</code> 加 5 个 MySQL 环境变量</td></tr>
+      <tr><td class="step-id">2.4</td><td><span class="env-tag adata">adata</span></td><td>尝试导 adata 快照 —— <b>实际取不到</b>（平台网络隔离，连接地址仅注入部署容器，本地与 CVM 都连不上）；改用 CVM 自身旧数据</td></tr>
+      <tr><td class="step-id">2.5</td><td><span class="env-tag cvm">CVM</span></td><td>把 CVM 自身 SQLite 数据迁入 MySQL（1566 行，逐表核对与源库一致）</td></tr>
+      <tr><td class="step-id">2.6</td><td><span class="env-tag cvm">CVM</span></td><td>现有 SQLite 数据库原地备份保留，不删除</td></tr>
+      <tr><td class="step-id">2.7</td><td><span class="env-tag cvm">CVM</span></td><td>部署 <code>adata-dev/main</code> 代码，<code>ecosystem.config.js</code> 加 5 个 MySQL 环境变量（独立库 <code>topic_ip_cvm</code> + 独立账号，不复用生产凭据）</td></tr>
       <tr><td class="step-id">2.8</td><td><span class="env-tag cvm">CVM</span></td><td>健康检查 + 核心功能走查（登录 / 活动列表 / 编辑保存 / 图片上传）</td></tr>
     </table>
   </div>
@@ -144,43 +146,47 @@
   <div class="stage-head">
     <div class="stage-num">3</div>
     <div class="stage-title"><h3>本地开发环境搭建</h3><div class="desc">跑通完整链路，为常态化开发做准备</div></div>
-    <span class="stage-status ready">本地操作 · 先列命令确认</span>
+    <span class="stage-status done">已完成 2026-09-20</span>
   </div>
   <div class="stage-body">
     <table>
       <tr><th style="width:56px">序</th><th style="width:100px">在哪</th><th>具体做什么</th></tr>
-      <tr><td class="step-id">3.1</td><td><span class="env-tag local">本地</span></td><td>checkout <code>adata-baseline</code> 到本地 <code>adata-dev/</code> 目录</td></tr>
-      <tr><td class="step-id">3.2</td><td><span class="env-tag local">本地</span></td><td>配置本地环境变量（<code>DB_PATH</code> 等），验证 <code>node server.js</code> 能启动</td></tr>
-      <tr><td class="step-id">3.3</td><td><span class="env-tag local">本地</span></td><td>灌入同一份快照（可选，用于日常联调）</td></tr>
-      <tr><td class="step-id">3.4</td><td><span class="env-tag local">本地</span></td><td>小规模试水：加一个测试字段，走完整链路（本地→CVM走查→部署adata）</td></tr>
+      <tr><td class="step-id">3.1</td><td><span class="env-tag local">本地</span></td><td>本地 <code>adata-dev/</code> 本就是开发主线，无需再 checkout 其他分支</td></tr>
+      <tr><td class="step-id">3.2</td><td><span class="env-tag local">本地</span></td><td>写 <code>scripts/dev-start.sh</code>：SQLite（默认零配置）/ MySQL 双模式；<b>脚本内绕开本机 HTTP 代理</b>，否则 localhost 请求会被拦截</td></tr>
+      <tr><td class="step-id">3.3</td><td><span class="env-tag local">本地</span></td><td>写 <code>scripts/fetch-dev-data.sh</code>：从 CVM 只读拉一份开发快照（<b>单向，绝不回推</b>），自动备份本地已有数据</td></tr>
+      <tr><td class="step-id">3.4</td><td><span class="env-tag local">本地</span></td><td>补 <code>README.md</code>：启动方式、「什么时候必须改用 MySQL 验证」判定表、两个环境的 DB 版本</td></tr>
+      <tr><td class="step-id">3.5</td><td><span class="env-tag local">本地</span></td><td>实测：<code>dev-start.sh</code> 起来健康 200、前端 <code>?driver=api</code> 可访问；拉数据后 58 活动 / 8 类型 / 31 账号，与 CVM 一致</td></tr>
     </table>
   </div>
-  <div class="verify"><b>验收标准</b>全链路跑通一次，无阻塞</div>
+  <div class="verify"><b>验收标准</b>一条命令起服务；<code>.devdata/</code> 已 gitignore 不进仓库；本地改动与 CVM / adata 环境互不干扰</div>
 </div>
 
 <div class="stage">
   <div class="stage-head">
     <div class="stage-num">4</div>
-    <div class="stage-title"><h3>常态化协作</h3><div class="desc">流程固化，进入日常循环</div></div>
-    <span class="stage-status gated">部署动作仍需确认</span>
+    <div class="stage-title"><h3>常态化协作（git 拉取模式）</h3><div class="desc">2026-09-21 起：推工蜂 → 打 tag → adata 从工蜂拉</div></div>
+    <span class="stage-status gated">部署动作仍需你说「部署」</span>
   </div>
   <div class="stage-body">
     <ul class="checklist">
-      <li>本地改代码（Claude / GPT，任意强模型）</li>
-      <li>commit → push → MR 到 <code>adata-baseline</code></li>
-      <li>合并后部署 CVM 走查（需你确认「部署」）</li>
-      <li>走查通过 → 部署 adata（需你确认「部署」，必带 <code>bound_db_names</code>）</li>
-      <li>浏览器验证 adata 生产</li>
+      <li><b>本地改代码</b>，起 SQLite 服务自测；涉及 SQL / 建表 / 加列 / 加索引则按规则层第 09 节在 <b>CVM 临时库</b> 验</li>
+      <li>开分支 → commit（中文描述）→ push → <b>MR</b> → 合入 <code>adata-dev/main</code></li>
+      <li>在 main 上<b>打 release tag</b>（如 <code>v1.2</code>）—— <b>tag 即版本号</b>，替代原来的 zip 命名</li>
+      <li>让 <b>CVM</b> 拉该 tag 走查（需你确认「部署」）</li>
+      <li>走查通过 → 让 <b>adata</b> 从工蜂拉<b>同一个 tag</b> 部署（需你确认「部署」）</li>
+      <li>部署后核对：health 200 / 数据量与部署前一致 / 关键功能可用</li>
     </ul>
   </div>
   <div class="note">
-    <span><b>部署到 adata 时的连接机制（补充说明）：</b>不经过快照，是运行时直连。代码带 <code>bound_db_names</code> 上传 → adata 平台自动注入数据库连接地址到容器环境变量 → 适配层用内置默认账号密码补全 → 容器启动直连 adata 真实生产 MySQL → 运行时自动把代码里的 SQLite 写法翻译成 MySQL 写法 → 建表逻辑幂等（表存在则跳过），<b>部署不会清空或重建任何已有数据</b>。</span>
+    <span><b>流程变更（2026-09-21）：</b>原「打包 zip 上传 adata → <code>webapp update</code>」改为<b>「推工蜂 → adata 从工蜂拉取」</b>。单一真相源变成 git 仓库，版本即 tag，不再有"部署包与仓库代码不一致"的风险；<b>zip 打包约定随之作废</b>。<br>
+    <b>DB 绑定：</b>改为 git 拉取后 <code>bound_db_names</code> 通常转为 adata 平台的<b>一次性配置</b>，但<b>首次部署或换库必须确认已绑定</b>；若平台仍要求每次指定，部署仍须带齐 <code>server_name</code> / <code>port</code> / <code>bound_db_names</code>。<b>漏绑会导致数据库绑定丢失</b>。<br>
+    <b>连接机制（不变）：</b>adata 上仍是运行时直连真实生产 MySQL —— 平台注入连接地址 → 适配层补全凭据 → SQL 自动翻译（表名加 <code>agent_</code> 前缀）→ 建表幂等（表存在则跳过），<b>部署不会清空或重建任何已有数据</b>。</span>
   </div>
 </div>
 
 <footer>
-  本清单是本次任务的一次性落地记录，执行状态会随进展更新。规则本身的长期定义见《协作SOP》。<br>
-  全程未执行任何代码修改、未部署 —— 等待你逐阶段确认。
+  本清单是落地记录，执行状态随进展更新（阶段 0–3 已完成，阶段 4 为当前循环）。规则本身的长期定义见《协作SOP》。<br>
+  最近更新：2026-09-21 —— 部署方式由「打包 zip 上传」改为「推工蜂 + adata 从工蜂拉」，版本管理改用 git tag。
 </footer>
 
 </div>

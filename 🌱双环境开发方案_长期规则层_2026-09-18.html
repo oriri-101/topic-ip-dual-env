@@ -81,7 +81,7 @@
   <h1>协作 SOP · 长期规则层</h1>
   <div class="sub">回答"什么时间、在哪个环境、做什么类型的事" —— 这是长期维护 CVM 与 adata 双环境时反复适用的规则，不随单次任务变化。具体这次要做的事见另一份《执行清单》。</div>
   <div class="meta">
-    <span><b>版本</b> v1.1 · 2026-09-20</span>
+    <span><b>版本</b> v1.2 · 2026-09-21</span>
     <span><b>适用范围</b> 话题IP营销驾驶舱</span>
     <span><b>状态</b> 待确认后生效</span>
   </div>
@@ -129,11 +129,11 @@
   </div>
   <div class="trigger-item">
     <div class="when">当：功能已在本地验证通过</div>
-    <div class="what">commit → push → MR 到 <code>adata-dev</code> 仓库的 <code>main</code>，合并后部署 <b>CVM</b> 走查</div>
+    <div class="what">commit → push → MR 到 <code>adata-dev</code> 仓库的 <code>main</code>，合并后<b>打 release tag</b>，再让 <b>CVM</b> 拉该 tag 走查</div>
   </div>
   <div class="trigger-item">
     <div class="when">当：CVM 走查确认无误</div>
-    <div class="what">打包部署到 <b>adata</b>，必须你明确说「部署」才执行</div>
+    <div class="what">让 <b>adata</b> 从工蜂拉取<b>同一个 tag</b> 部署，必须你明确说「部署」才执行</div>
   </div>
   <div class="trigger-item">
     <div class="when">当：需要真实数据参考</div>
@@ -184,6 +184,7 @@
 </div>
 
 <h2><span class="num">04</span>代码流向铁律</h2>
+<p class="h2sub">工蜂仓库是唯一真相源 —— 本地只推代码，CVM 与 adata 都从工蜂拉同一个 tag，不再手工打包上传</p>
 <div class="flow">
   <div class="node">本地改代码</div>
   <span class="arrow">→</span>
@@ -191,17 +192,26 @@
   <span class="arrow">→</span>
   <div class="node">adata-dev · main</div>
   <span class="arrow">→</span>
-  <div class="node">CVM 走查</div>
+  <div class="node">打 release tag</div>
   <span class="arrow">→</span>
-  <div class="node">adata 生产</div>
+  <div class="node">CVM 走查（拉 tag）</div>
+  <span class="arrow">→</span>
+  <div class="node">adata 生产（拉同一 tag）</div>
 </div>
 <div class="callout"><span class="mark">禁止：</span>本地代码直接跳过 CVM 走查部署到 adata —— SQL/迁移层问题只有在同构环境里才测得出</div>
+<div class="note">
+  <b>2026-09-21 起生效的流程变更</b><br>
+  原流程是「打包 zip 上传 adata → <code>webapp update</code>」，现改为「<b>推工蜂 → adata 从工蜂拉取</b>」。
+  好处：①<b>单一真相源</b>（git 仓库），不再有"部署包与仓库代码不一致"的风险 ②<b>版本即 git tag</b>，可回溯、可 diff、可回滚 ③省掉打包环节。
+  <b>zip 打包约定随之作废</b>：<code>adata发布包/</code> 只保留版本记录与检验清单，不再作为交付物。
+</div>
 
 <h2><span class="num">05</span>Git 分支职责</h2>
 <p class="h2sub">两个独立仓库各有一个 <code>main</code>，含义完全不同 —— 「main」是分支名，「adata 基线代码」是代码内容，二者不是二选一</p>
 <table>
 <tr><th style="width:200px">仓库 · 分支</th><th>用途</th><th>谁能提交</th></tr>
 <tr><td><code>adata-dev</code> · <code>main</code></td><td><b>唯一开发主线</b>，装的就是 adata 基线代码，本方案所有工作在此进行</td><td>开发者本人 + AI 协助</td></tr>
+<tr><td><code>tag v*.*</code></td><td><b>发布版本</b>：打在 main 上，标记一次可部署的发布点；CVM 与 adata 拉取同一个 tag</td><td>发布时创建</td></tr>
 <tr><td><code>feature/*</code></td><td>单个功能分支，从 <code>adata-dev/main</code> 切出</td><td>按需创建，完成后 MR 合并回主线</td></tr>
 <tr><td><code>终版文件</code> · <code>main</code></td><td>CVM 旧线历史归档，<b>冻结</b>，仅供回溯查证</td><td>不再提交</td></tr>
 </table>
@@ -243,7 +253,11 @@
   </div>
   <div class="rule">
     <span class="rule-num">4</span>
-    <div class="rule-body"><b>参数不漏</b><p>adata 部署必须带齐 <code>server_name</code> / <code>port</code> / <code>bound_db_names</code>，漏传最后一项会导致数据库绑定丢失</p></div>
+    <div class="rule-body"><b>绑定参数核对</b><p>改为 git 拉取后，<code>bound_db_names</code> 通常转为 adata 平台的<b>一次性配置</b>（绑库不随每次部署重传）。但<b>首次部署或换库时必须确认已绑定</b>；若平台仍要求每次指定，则部署仍须带齐 <code>server_name</code> / <code>port</code> / <code>bound_db_names</code>。<b>漏绑或漏传会导致数据库绑定丢失，线上数据"消失"</b>。</p></div>
+  </div>
+  <div class="rule">
+    <span class="rule-num">5</span>
+    <div class="rule-body"><b>走查与生产同一 tag</b><p>CVM 走查和 adata 生产必须指向<b>同一个 git tag</b>，避免"验过的代码"与"上的代码"不是同一份</p></div>
   </div>
 </div>
 
